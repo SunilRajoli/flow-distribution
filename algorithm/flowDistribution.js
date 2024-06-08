@@ -12,11 +12,27 @@ const distributeUsers = (users, astrologers) => {
         astrologer.connections = 0;
     });
 
-    // Randomly distribute users
-    users.forEach(user => {
-        const randomAstrologerIndex = Math.floor(Math.random() * totalAstrologers);
-        astrologers[randomAstrologerIndex].connections += 1;
+    // Calculate the ideal number of connections per astrologer
+    const idealConnectionsPerAstrologer = Math.floor(totalUsers / totalAstrologers);
+
+    // Distribute users among astrologers
+    let remainingUsers = totalUsers;
+    astrologers.forEach(astrologer => {
+        const connectionsForAstrologer = astrologer.isTopAstrologer ? idealConnectionsPerAstrologer * 2 : idealConnectionsPerAstrologer;
+        astrologer.connections = connectionsForAstrologer;
+        remainingUsers -= connectionsForAstrologer;
     });
+
+    // Distribute remaining users evenly among top astrologers
+    if (remainingUsers > 0) {
+        const topAstrologers = astrologers.filter(astrologer => astrologer.isTopAstrologer);
+        topAstrologers.forEach(astrologer => {
+            if (remainingUsers > 0) {
+                astrologer.connections += 1;
+                remainingUsers -= 1;
+            }
+        });
+    }
 
     return astrologers;
 };
